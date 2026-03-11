@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sephremoth</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Cormorant:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d0d0d;
+  --surface: #111111;
+  --border: #1e1e1e;
+  --text: #c8c8c8;
+  --muted: #444;
+  --accent: #a0a0a0;
+  --white: #efefef;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  cursor: none;
+}
+
+/* custom cursor */
+#cursor {
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  background: var(--white);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.15s ease, opacity 0.2s;
+  transform: translate(-50%, -50%);
+}
+#cursor-ring {
+  position: fixed;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: all 0.12s ease;
+}
+
+/* layout */
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* nav */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to bottom, var(--bg) 60%, transparent);
+}
+
+.nav-name {
+  font-family: 'Cormorant', serif;
+  font-size: 1rem;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  color: var(--white);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--white); }
+
+/* hero */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding-top: 5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+#hero::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,255,255,0.015) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: rise 1s ease 0.2s forwards;
+}
+
+.hero-tag {
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+
+.hero-name {
+  font-family: 'Cormorant', serif;
+  font-size: clamp(3.5rem, 8vw, 5.5rem);
+  font-weight: 300;
+  line-height: 0.95;
+  color: var(--white);
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+}
+
+.hero-name em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.hero-desc {
+  max-width: 380px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.9;
+  margin-bottom: 3rem;
+}
+
+.hero-desc span { color: var(--text); }
+
+.scroll-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--muted);
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.scroll-line {
+  width: 40px;
+  height: 1px;
+  background: var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.scroll-line::after {
+  content: '';
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--muted);
+  animation: scanline 2s ease infinite;
+}
+
+@keyframes scanline {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* sections */
+section {
+  padding: 6rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.section-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  max-width: 60px;
+}
+
+/* about */
+.about-text {
+  font-family: 'Cormorant', serif;
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  font-weight: 300;
+  line-height: 1.8;
+  color: var(--text);
+  max-width: 560px;
+}
+
+.about-text em {
+  font-style: italic;
+  color: var(--white);
+}
+
+.about-note {
+  margin-top: 2rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+/* skills */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 1rem;
+}
+
+.skill-item {
+  background: var(--bg);
+  padding: 1.25rem 1.5rem;
+  transition: background 0.2s;
+}
+
+.skill-item:hover { background: var(--surface); }
+
+.skill-name {
+  color: var(--white);
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.skill-level {
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+
+/* projects */
+.projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.project-item {
+  background: var(--bg);
+  padding: 2rem 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-start: start;
+  transition: background 0.2s;
+  cursor: default;
+}
+
+.project-item:hover { background: var(--surface); }
+
+.project-index {
+  font-size: 0.6rem;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.2em;
+}
+
+.project-name {
+  font-family: 'Cormorant', serif;
+  font-size: 1.4rem;
+  font-weight: 300;
+  color: var(--white);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.project-desc {
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 480px;
+}
+
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.tag {
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 0.2rem 0.6rem;
+}
+
+.project-status {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding-top: 0.25rem;
+}
+
+.project-status.wip { color: #555; }
+.project-status.done { color: #4a6a4a; }
+
+/* contact */
+.contact-block {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  max-width: 400px;
+}
+
+.contact-item {
+  background: var(--bg);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.contact-item:hover { background: var(--surface); }
+
+.contact-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.contact-value {
+  font-size: 0.75rem;
+  color: var(--white);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.contact-value:hover { color: var(--accent); }
+
+/* footer */
+footer {
+  padding: 3rem 0;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-note {
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+}
+
+/* animations */
+@keyframes rise {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav>
+  <a href="#hero" class="nav-name">sephremoth</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="container">
+
+    <!-- HERO -->
+    <section id="hero">
+      <div class="hero-inner">
+        <div class="hero-tag">— work in progress —</div>
+        <h1 class="hero-name">Seph<br><em>remoth</em></h1>
+        <p class="hero-desc">
+          <span>Programmer.</span> Mostly systems and gameplay. Recently got into VFX and animation. Still figuring things out.
+        </p>
+        <div class="scroll-hint">
+          <div class="scroll-line"></div>
+          scroll
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about">
+      <div class="section-label">About</div>
+      <div class="reveal">
+        <p class="about-text">
+          I write code. Mostly low-level stuff, gameplay systems, that kind of thing. Recently started getting into <em>VFX and animation</em> as well — didn't plan on it, just happened.
+        </p>
+        <p class="about-note">
+          C++, C#, Java. Working on some projects.<br>
+          Not much else to say for now.
+        </p>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section id="skills">
+      <div class="section-label">Skills</div>
+      <div class="skills-grid reveal">
+        <div class="skill-item">
+          <div class="skill-name">C++</div>
+          <div class="skill-level">Systems / Performance</div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-name">C#</div>
+          <div class="skill-level">Gameplay / Tools</div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-name">Java</div>
+          <div class="skill-level">Backend / Logic</div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-name">VFX</div>
+          <div class="skill-level">Learning / Active</div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-name">Animation</div>
+          <div class="skill-level">Learning / Active</div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-name">Game Systems</div>
+          <div class="skill-level">Gameplay Logic</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects">
+      <div class="section-label">Projects</div>
+      <div class="projects-list reveal">
+
+        <div class="project-item">
+          <div>
+            <div class="project-index">01</div>
+            <div class="project-name">Tahtelarz</div>
+            <p class="project-desc">
+              Underground civilization, government lies, missing population. You play as a scout named Seph who finds out the surface wasn't actually destroyed — and comes back to find everyone gone. Still building this one out.
+            </p>
+            <div class="project-tags">
+              <span class="tag">Narrative</span>
+              <span class="tag">C++</span>
+              <span class="tag">Game Dev</span>
+              <span class="tag">Systems</span>
+            </div>
+          </div>
+          <div class="project-status done">In Development</div>
+        </div>
+
+        <div class="project-item">
+          <div>
+            <div class="project-index">02</div>
+            <div class="project-name">Trace Walker</div>
+            <p class="project-desc">
+              Not ready to talk about this one yet.
+            </p>
+            <div class="project-tags">
+              <span class="tag">TBA</span>
+            </div>
+          </div>
+          <div class="project-status wip">WIP</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact">
+      <div class="section-label">Contact</div>
+      <div class="contact-block reveal">
+        <div class="contact-item">
+          <span class="contact-label">Discord</span>
+          <span class="contact-value">sephremoth</span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<div class="container">
+  <footer>
+    <span class="footer-note">sephremoth — 2025</span>
+    <span class="footer-note">Systems & Gameplay</span>
+  </footer>
+</div>
+
+<script>
+  // cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+
+  function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+
+  // reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  reveals.forEach(r => obs.observe(r));
+</script>
+</body>
+</html>
